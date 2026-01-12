@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dosis Pediàtriques SEUP - Calculadora Urgències</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0066cc;
+            --primary-dark: #004999;
+            --accent: #ff3366;
+            --bg-main: #f8f9fa;
+            --bg-card: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --border: #e0e0e0;
+            --shadow: rgba(0, 0, 0, 0.08);
+            --success: #00cc88;
+            --warning: #ffaa00;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+
+        .header h1 {
+            font-family: 'Space Mono', monospace;
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .input-section {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+
+        .weight-input-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .weight-input-group label {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
+        .weight-input-wrapper {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+
+        #pesoInput {
+            width: 100%;
+            padding: 16px 80px 16px 20px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border: 3px solid var(--primary);
+            border-radius: 12px;
+            color: var(--primary);
+            background: #f0f7ff;
+            transition: all 0.3s;
+            font-family: 'Space Mono', monospace;
+        }
+
+        #pesoInput:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(255, 51, 102, 0.1);
+        }
+
+        .kg-label {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .quick-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .quick-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .quick-btn:active {
+            transform: translateY(0);
+        }
+
+        .search-filter {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        #searchInput:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .med-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px var(--shadow);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-left: 5px solid var(--primary);
+        }
+
+        .med-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .med-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            gap: 12px;
+        }
+
+        .med-name {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1.3;
+        }
+
+        .med-via {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .dosage-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .dosage-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .dosage-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .dosage-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .dosage-unit {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-left: 2px;
+        }
+
+        .considerations {
+            background: #fff9e6;
+            border-left: 3px solid var(--warning);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--text-primary);
+            margin-top: 16px;
+        }
+
+        .considerations strong {
+            color: var(--warning);
+            font-weight: 700;
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state-text {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .dosage-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .weight-input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .quick-buttons {
+                justify-content: center;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .med-card {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .highlight {
+            background: yellow;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💊 Calculadora Dosis Pediàtriques</h1>
+            <p>Taules de referència SEUP (Sociedad Española de Urgencias Pediátricas)</p>
+        </div>
+
+        <div class="input-section">
+            <div class="weight-input-group">
+                <label for="pesoInput">Pes del pacient:</label>
+                <div class="weight-input-wrapper">
+                    <input type="number" id="pesoInput" placeholder="0" min="0" step="0.1" autofocus>
+                    <span class="kg-label">kg</span>
+                </div>
+            </div>
+            <div class="quick-buttons" style="margin-top: 20px;">
+                <button class="quick-btn" onclick="setPeso(3)">3 kg (Neonat)</button>
+                <button class="quick-btn" onclick="setPeso(10)">10 kg (1 any)</button>
+                <button class="quick-btn" onclick="setPeso(20)">20 kg (5 anys)</button>
+                <button class="quick-btn" onclick="setPeso(30)">30 kg (10 anys)</button>
+                <button class="quick-btn" onclick="setPeso(50)">50 kg (Adolescent)</button>
+            </div>
+        </div>
+
+        <div class="search-filter">
+            <input type="text" id="searchInput" placeholder="🔍 Cerca medicament (ex: adrenalina, midazolam, atropina...)">
+        </div>
+
+        <div class="input-section" id="refSection" style="display:none; margin-bottom: 24px;">
+            <h2 style="font-family: 'Space Mono', monospace; color: var(--primary); margin-bottom: 20px; font-size: 1.3rem;">📏 Guia de Referència Ràpida per Via Aèria i RCP</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;">
+                <div style="background: #f0f7ff; padding: 14px; border-radius: 10px; border-left: 4px solid var(--primary);">
+                    <div style="font-weight: 700; color: var(--primary); margin-bottom: 6px; text-transform: uppercase; font-size: 0.8rem;">Guedel</div>
+                    <div id="guedelValue" style="font-size: 1.3rem; font-weight: 700; font-family: 'Space Mono', monospace; color: var(--accent);">-</div>
+                </div>
+                <div style="background: #f0f7ff; padding: 14px; border-radius: 10px; border-left: 4px solid var(--primary);">
+                    <div style="font-weight: 700; color: var(--primary); margin-bottom: 6px; text-transform: uppercase; font-size: 0.8rem;">TET</div>
+                    <div id="tetValue" style="font-size: 1.3rem; font-weight: 700; font-family: 'Space Mono', monospace; color: var(--accent);">-</div>
+                </div>
+                <div style="background: #f0f7ff; padding: 14px; border-radius: 10px; border-left: 4px solid var(--primary);">
+                    <div style="font-weight: 700; color: var(--primary); margin-bottom: 6px; text-transform: uppercase; font-size: 0.8rem;">TET amb Baló</div>
+                    <div id="tetBaloValue" style="font-size: 1.3rem; font-weight: 700; font-family: 'Space Mono', monospace; color: var(--accent);">-</div>
+                </div>
+                <div style="background: #f0f7ff; padding: 14px; border-radius: 10px; border-left: 4px solid var(--primary);">
+                    <div style="font-weight: 700; color: var(--primary); margin-bottom: 6px; text-transform: uppercase; font-size: 0.8rem;">CM a Llavi</div>
+                    <div id="cmValue" style="font-size: 1.3rem; font-weight: 700; font-family: 'Space Mono', monospace; color: var(--accent);">-</div>
+                </div>
+                <div style="background: #f0f7ff; padding: 14px; border-radius: 10px; border-left: 4px solid var(--primary);">
+                    <div style="font-weight: 700; color: var(--primary); margin-bottom: 6px; text-transform: uppercase; font-size: 0.8rem;">Pala Laringoscopi</div>
+                    <div id="palaValue" style="font-size: 1.3rem; font-weight: 700; font-family: 'Space Mono', monospace; color: var(--accent);">-</div>
+                </div>
+                <div style="background: #f0f7ff; padding: 14px; border-radius: 10px; border-left: 4px solid var(--primary);">
+                    <div style="font-weight: 700; color: var(--primary); margin-bottom: 6px; text-transform: uppercase; font-size: 0.8rem;">M. Laringia</div>
+                    <div id="mlaringiaValue" style="font-size: 1.3rem; font-weight: 700; font-family: 'Space Mono', monospace; color: var(--accent);">-</div>
+                </div>
+                <div style="background: #fff9e6; padding: 14px; border-radius: 10px; border-left: 4px solid var(--warning);">
+                    <div style="font-weight: 700; color: var(--warning); margin-bottom: 6px; text-transform: uppercase; font-size: 0.8rem;">Dosis CV/DF</div>
+                    <div id="cvdfValue" style="font-size: 1.3rem; font-weight: 700; font-family: 'Space Mono', monospace; color: var(--warning);">-</div>
+                </div>
+                <div style="background: #e8f5e9; padding: 14px; border-radius: 10px; border-left: 4px solid var(--success);">
+                    <div style="font-weight: 700; color: var(--success); margin-bottom: 6px; text-transform: uppercase; font-size: 0.8rem;">Edat Aproximada</div>
+                    <div id="edatValue" style="font-size: 1.3rem; font-weight: 700; font-family: 'Space Mono', monospace; color: var(--success);">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-grid" id="resultsGrid"></div>
+    </div>
+
+    <script>
+        const medicaments = [
+            {
+                nom: "ADENOSINA 6 mg/2 ml",
+                via: "IV/IO",
+                concentracio: 3,
+                calcMl: (p) => 0.1 * p / 3,
+                calcMg: (p) => 0.1 * p,
+                dosisMgKg: "0,1",
+                consideracions: "<strong>1ª dosis TPSV:</strong> 2-3º dosis TPSV. Bolo ràpid 1-2 seg seguit de 5-10 ml de SSF. Dosis màx. 6 mg. Dosis màx posteriors: 12-18 mg. Dosis inicial alt corazón posible. Evitar mientras inferior"
+            },
+            {
+                nom: "ADRENALINA 1:1000 (1 mg/ml)",
+                via: "IV/IO",
+                concentracio: 1,
+                calcMl: (p) => 0.01 * p,
+                calcMg: (p) => 0.01 * p,
+                dosisMgKg: "0,01",
+                consideracions: "<strong>PCR:</strong> Bolo ràpid. Dosis màx 1 mg. Se puede repetir cada 3-5 min o 2 dosis de PCR. No administrar con soluciones alcalinas"
+            },
+            {
+                nom: "ADRENALINA 1:1000 (1 mg/ml)",
+                via: "IM",
+                concentracio: 1,
+                calcMl: (p) => p < 15 ? 0.15 : 0.3,
+                calcMg: (p) => p < 15 ? 0.15 : 0.3,
+                dosisMgKg: "0,01",
+                consideracions: "<strong>Anafilaxia:</strong> Directo. Administrar en cara anterolateral de muslo. Dosis 0.15mg. Puede repetirse cada a 5-15 min según gravedad"
+            },
+            {
+                nom: "AMIODARONA 150 mg/3 ml",
+                via: "IV/IO",
+                concentracio: 50,
+                calcMl: (p) => 5 * p / 50,
+                calcMg: (p) => 5 * p,
+                dosisMgKg: "5",
+                consideracions: "<strong>PCR:</strong> En PCR: no ràpido. T.A. En ritmo 30-60 min. Dosis màx. 300 mg. Dosis màx acumul. 15 mg/kg/dia. Se puede repartir 2ª dosis (150 mg max). Incompatible con SSF"
+            },
+            {
+                nom: "ATROPINA 1 mg/1 ml",
+                via: "IV/IO",
+                concentracio: 1,
+                calcMl: (p) => 0.02 * p,
+                calcMg: (p) => 0.02 * p,
+                dosisMgKg: "0,02",
+                consideracions: "<strong>Arritmia:</strong> Bolo ràpid. Dosis màx 0,5 mg. Dosis màx acumul. 1 mg. Puede repetirse a los 3-5 min"
+            },
+            {
+                nom: "BICARBONATO SÒDIC 1M (10 ml/10 ml)",
+                via: "IV/IO",
+                concentracio: 1,
+                calcMl: (p) => 1 * p,
+                calcMg: (p) => p < 10 ? 10 : p,
+                dosisMgKg: "1 mEq/kg",
+                consideracions: "<strong>Correcció electrolítics:</strong> En PCR Bolo en 1-5 seg. Resto indicacions velocidad NO superior a 10 ml/min. Lavar con SSF 20 ml. No mezclar con soluciones calcio"
+            },
+            {
+                nom: "CLORURO MÓRFICO 1% (10 mg/1 ml)",
+                via: "IV/IO",
+                concentracio: 10,
+                calcMl: (p) => 0.05 * p / 10,
+                calcMg: (p) => 0.05 * p,
+                dosisMgKg: "0,05",
+                consideracions: "<strong>Analgèsic:</strong> Dosis màx. 5 mg. Niños < 6 meses son más susceptibles a sufrir depresión respiratoria, usar dosis de 0 mg/kg"
+            },
+            {
+                nom: "DIAZEPAM 10 mg/2 ml",
+                via: "IV/IO",
+                concentracio: 5,
+                calcMl: (p) => 0.2 * p / 5,
+                calcMg: (p) => 0.2 * p,
+                dosisMgKg: "0,2",
+                consideracions: "<strong>Anticonvulsivant Sedante:</strong> Dosis màx 10 mg. Se puede repetir una segunda dosis a los 5-10 min. No administrar en < 1 mes"
+            },
+            {
+                nom: "ETOMIDATO 20 mg/10 ml",
+                via: "IV/IO",
+                concentracio: 2,
+                calcMl: (p) => 0.2 * p / 2,
+                calcMg: (p) => 0.2 * p,
+                dosisMgKg: "0,2",
+                consideracions: "Dosis màx 20 mg. No administrar en < 6 meses. Se exposición accidental de la piel lavar con abundante agua"
+            },
+            {
+                nom: "FENTANIL 250 mcg/5 ml",
+                via: "IV/IO",
+                concentracio: 0.05,
+                calcMl: (p) => 2 * p / 50,
+                calcMg: (p) => 2 * p / 1000,
+                dosisMgKg: "0,002",
+                consideracions: "<strong>Anticonvulsivante:</strong> Dosis màx 100 mcg. Lavar catéter antes y después con SSF"
+            },
+            {
+                nom: "FENOBARBITAL 200 mg/1 ml",
+                via: "IV/IO",
+                concentracio: 200,
+                calcMl: (p) => 20 * p / 200,
+                calcMg: (p) => 20 * p,
+                dosisMgKg: "20",
+                consideracions: "<strong>Anticonvulsivante:</strong> 5-10 min (ritmo màx 60 mg/min). Dosis màx total 1000 mg. Se puede repetir dosis de 5-10 mg/kg cada 15-20 min"
+            },
+            {
+                nom: "FENTANILO 0,15 mg/3 ml",
+                via: "IV/IO",
+                concentracio: 0.05,
+                calcMl: (p) => 0.001 * p * 3 / 0.15,
+                calcMg: (p) => 0.001 * p,
+                dosisMgKg: "0,001",
+                consideracions: "<strong>Analgèsic/SRI:</strong> En SRI 30-60 seg. Dosis màx 50-75 mcg. Se puede repetir 2ª dosis a los 5 min a 1/2 de dosis"
+            },
+            {
+                nom: "FLECAINIDA 150 mg/15 ml",
+                via: "IV/IO",
+                concentracio: 10,
+                calcMl: (p) => 2 * p / 10,
+                calcMg: (p) => 2 * p,
+                dosisMgKg: "2",
+                consideracions: "<strong>Antiarrítmic:</strong> 10-30 min. Dosis màx 150 mg. Incompatible con SSF. Diluir antes de infusión"
+            },
+            {
+                nom: "FLUMAZENIL 0,5 mg/5 ml",
+                via: "IV/IO",
+                concentracio: 0.1,
+                calcMl: (p) => 0.01 * p * 5 / 0.5,
+                calcMg: (p) => 0.01 * p,
+                dosisMgKg: "0,01",
+                consideracions: "<strong>Antídot:</strong> Bolo ràpid en 15 seg. Dosis màx 0.2 mg. Dosis màx. Total 1 mg. Se puede repetir cada minuto"
+            },
+            {
+                nom: "GLUCAGÓN 1 mg",
+                via: "IV/IM/SC",
+                concentracio: 1,
+                calcMl: (p) => p < 25 ? 0.5 : 1,
+                calcMg: (p) => p < 25 ? 0.5 : 1,
+                dosisMgKg: "0.02 si <25kg / 1 mg si >25kg",
+                consideracions: "<strong>Hipoglucemia grave:</strong> Sin diluir. Injectar 1 ml de AP IV"
+            },
+            {
+                nom: "GLUCONATO CÀLCIC 10% (940 mg/10 ml)",
+                via: "IV",
+                concentracio: 94,
+                calcMl: (p) => 100 * p / 94,
+                calcMg: (p) => 100 * p,
+                dosisMgKg: "100",
+                consideracions: "<strong>Correcció electrolítics:</strong> En PCR en 10-20 seg. En otras indicaciones en 5-10 min. Dosis màx 2 gr. Se puede repetir a los 10 min"
+            },
+            {
+                nom: "GLUCOSA 10%",
+                via: "IV/IO",
+                concentracio: 100,
+                calcMl: (p) => 20 * p,
+                calcMg: (p) => 2000 * p,
+                dosisMgKg: "500",
+                consideracions: "<strong>Correcció electrolítics:</strong> Dosis màx 25 g. Se puede repetir dosis a los 10 min"
+            },
+            {
+                nom: "KETAMINA 500 mg/1 ml",
+                via: "IV/IO",
+                concentracio: 500,
+                calcMl: (p) => p < 50 ? 1 * p / 500 : 0.1,
+                calcMg: (p) => p < 50 ? 1 * p : 50,
+                dosisMgKg: "1",
+                consideracions: "<strong>SRI/Sedació:</strong> En SRI 30-60 seg. En Sedación 3-5 min. Dosis màx 50 mg. No recomendado <3 meses"
+            },
+            {
+                nom: "LEVETIRACETAM 500 mg/5 ml",
+                via: "IV/IO",
+                concentracio: 100,
+                calcMl: (p) => 60 * p / 100,
+                calcMg: (p) => 60 * p,
+                dosisMgKg: "40",
+                consideracions: "<strong>Anticonvulsivante:</strong> 5-15 min. Dosis màx. 3000 mg"
+            },
+            {
+                nom: "LIDOCAÏNA 1% (100mg/10 ml)",
+                via: "IV/IO",
+                concentracio: 10,
+                calcMl: (p) => 1 * p / 10,
+                calcMg: (p) => 1 * p,
+                dosisMgKg: "1",
+                consideracions: "<strong>Antiarrítmic:</strong> Bolo ràpid. Dosis màx. 100 mg. Se puede repetir segundo bolo a 0,5-1 mg/kg. Puede repetir hasta 3 bolos"
+            },
+            {
+                nom: "MANITOL 20% (20 g/100 ml)",
+                via: "IV/IO",
+                concentracio: 200,
+                calcMl: (p) => 500 * p / 200,
+                calcMg: (p) => 500 * p,
+                dosisMgKg: "500",
+                consideracions: "<strong>Hipertensió intracraneal:</strong> 10-30min. Se puede repetir cada 4 h"
+            },
+            {
+                nom: "MIDAZOLAM 5 mg/1 ml",
+                via: "IV/IO",
+                concentracio: 5,
+                calcMl: (p) => 0.15 * p / 5,
+                calcMg: (p) => 0.15 * p,
+                dosisMgKg: "0,15",
+                consideracions: "<strong>Anticonvulsivante / SRI:</strong> Bolo ràpid (en SRI en 60-90 seg). Dosis màx <6 años: 5 mg / ≥ 6 años 10 mg). Se puede repetir a los 5 min"
+            },
+            {
+                nom: "NALOXONA 0,4 mg/1 ml",
+                via: "IV/IO",
+                concentracio: 0.4,
+                calcMl: (p) => 0.1 * p / 0.4,
+                calcMg: (p) => 0.1 * p,
+                dosisMgKg: "0,1",
+                consideracions: "<strong>Antídot intoxicación en PCR:</strong> Bolo. Dosis màx por bolo 2 mg. Se puede repetir cada 2-3 min. No administrar con soluciones alcalinas"
+            },
+            {
+                nom: "PROPOFOL 1% (10 mg/1 ml)",
+                via: "IV/IO",
+                concentracio: 10,
+                calcMl: (p) => 1 * p / 10,
+                calcMg: (p) => 1 * p,
+                dosisMgKg: "1",
+                consideracions: "<strong>SRI/Sedante:</strong> En SRI 30-60 seg. No dosis màx. Se puede repetir: 1 mg/kg cada 3-5min a 0,5 mg/kg. Contraindicat en PCR"
+            },
+            {
+                nom: "ROCURONIO 🌟 50 mg/5 ml",
+                via: "IV/IO",
+                concentracio: 10,
+                calcMl: (p) => 1 * p / 10,
+                calcMg: (p) => 1 * p,
+                dosisMgKg: "1",
+                consideracions: "<strong>Relajante muscular:</strong> T.A. 30 seg. No dosis màx. Se puede repetir cada 20-30 min a 0,2 mg/kg. Dispone de antídoto (Sugammadex)"
+            },
+            {
+                nom: "SUCCINIL-COLINA 100 mg/2 ml",
+                via: "IV/IO",
+                concentracio: 50,
+                calcMl: (p) => 2 * p / 50,
+                calcMg: (p) => 2 * p,
+                dosisMgKg: "1",
+                consideracions: "<strong>Relajante muscular:</strong> Directo. Dosis màx. 150 mg"
+            },
+            {
+                nom: "SUERO HIPERTÒNIC 3% (NaCl 30 g/l)",
+                via: "IV/IO",
+                concentracio: 30,
+                calcMl: (p) => p < 60 ? 5 : 0.48 * p,
+                calcMg: (p) => p < 60 ? 5000 : 480 * p,
+                dosisMgKg: "5 ml/kg (<60kg)",
+                consideracions: "<strong>Hipertensió intracraneal:</strong> 15 min. Se puede repetir cada hora hasta 3 veces"
+            },
+            {
+                nom: "SUGAMMADEX 100 mg/1 ml",
+                via: "IV/IO",
+                concentracio: 100,
+                calcMl: (p) => 2 * p / 100,
+                calcMg: (p) => 2 * p,
+                dosisMgKg: "2",
+                consideracions: "<strong>Antídot rocuronio:</strong> 10 seg. No dosis màx. En caso de bloqueo profundo puede administrarse a dosis de 4 mg/kg"
+            },
+            {
+                nom: "TIOPENTAL 500 mg",
+                via: "IV/IO",
+                concentracio: 500,
+                calcMl: (p) => 3 * p / 500,
+                calcMg: (p) => 3 * p,
+                dosisMgKg: "3",
+                consideracions: "<strong>Sedante/SRI:</strong> T.A. 20-30 seg. Dosis màx 5 mg/kg. Contraindicat en pacients amb asma"
+            },
+            {
+                nom: "VALPROAT SÒDIC 400 mg",
+                via: "IV/IO",
+                concentracio: 400,
+                calcMl: (p) => 40 * p / 400,
+                calcMg: (p) => 40 * p,
+                dosisMgKg: "40",
+                consideracions: "<strong>Anticonvulsivante:</strong> T.A. 3-5 min. Dosis màx <3000 mg/dosis"
+            }
+        ];
+
+        function setPeso(peso) {
+            document.getElementById('pesoInput').value = peso;
+            calcularDosis();
+        }
+
+        function calcularDosis() {
+            const peso = parseFloat(document.getElementById('pesoInput').value) || 0;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const grid = document.getElementById('resultsGrid');
+            const refSection = document.getElementById('refSection');
+            
+            // Calcular referències segons pes (basades en les taules SEUP)
+            if (peso > 0) {
+                refSection.style.display = 'block';
+                
+                let guedel = '', tet = '', tetBalo = '', cm = '', pala = '', mlaringia = '', cvdf = '', edat = '';
+                
+                if (peso < 3) {
+                    // Neonat/RN < 3 kg
+                    guedel = 'nº 0-0';
+                    tet = '2.5-3';
+                    tetBalo = '2.5-3';
+                    cm = '8-9';
+                    pala = '0';
+                    mlaringia = '1';
+                    cvdf = '4-8 J';
+                    edat = 'RN';
+                } else if (peso >= 3 && peso < 5) {
+                    // 1 mes - 3-5 kg
+                    guedel = 'nº 0';
+                    tet = '3-3.5';
+                    tetBalo = '3';
+                    cm = '9-10.5';
+                    pala = '0-1';
+                    mlaringia = '1';
+                    cvdf = '8-16 J';
+                    edat = '1 mes';
+                } else if (peso >= 5 && peso < 10) {
+                    // 3-12 mesos - 5-10 kg
+                    guedel = 'nº 1';
+                    tet = '3.5-4';
+                    tetBalo = '3.5';
+                    cm = '10.5-12';
+                    pala = '1';
+                    mlaringia = '1.5';
+                    cvdf = '16-40 J';
+                    edat = '3-12 mesos';
+                } else if (peso >= 10 && peso < 12) {
+                    // 1-2 anys - 10-12 kg
+                    guedel = 'nº 1-2';
+                    tet = '4-4.5';
+                    tetBalo = '4';
+                    cm = '12-13.5';
+                    pala = '1-2';
+                    mlaringia = '2';
+                    cvdf = '40-48 J';
+                    edat = '1-2 anys';
+                } else if (peso >= 12 && peso < 16) {
+                    // 2-4 anys - 12-16 kg
+                    guedel = 'nº 2';
+                    tet = '4.5-5';
+                    tetBalo = '4.5';
+                    cm = '13.5-15';
+                    pala = '2';
+                    mlaringia = '2';
+                    cvdf = '48-64 J';
+                    edat = '2-4 anys';
+                } else if (peso >= 16 && peso < 20) {
+                    // 4-6 anys - 16-20 kg
+                    guedel = 'nº 2';
+                    tet = '5-5.5';
+                    tetBalo = '5';
+                    cm = '15-16.5';
+                    pala = '2';
+                    mlaringia = '2.5';
+                    cvdf = '64-80 J';
+                    edat = '4-6 anys';
+                } else if (peso >= 20 && peso < 30) {
+                    // 6-10 anys - 20-30 kg
+                    guedel = 'nº 3';
+                    tet = '5.5-6';
+                    tetBalo = '5.5';
+                    cm = '16.5-18';
+                    pala = '2-3';
+                    mlaringia = '2.5-3';
+                    cvdf = '80-120 J';
+                    edat = '6-10 anys';
+                } else if (peso >= 30 && peso < 50) {
+                    // 10-14 anys - 30-50 kg
+                    guedel = 'nº 3-4';
+                    tet = '6-7';
+                    tetBalo = '6-6.5';
+                    cm = '18-21';
+                    pala = '3';
+                    mlaringia = '3-4';
+                    cvdf = '120-200 J';
+                    edat = '10-14 anys';
+                } else {
+                    // > 14 anys - > 50 kg
+                    guedel = 'nº 4';
+                    tet = '7-8';
+                    tetBalo = '7-7.5';
+                    cm = '21-24';
+                    pala = '3-4';
+                    mlaringia = '4-5';
+                    cvdf = '200 J (adult)';
+                    edat = '> 14 anys';
+                }
+                
+                document.getElementById('guedelValue').textContent = guedel;
+                document.getElementById('tetValue').textContent = tet;
+                document.getElementById('tetBaloValue').textContent = tetBalo;
+                document.getElementById('cmValue').textContent = cm + ' cm';
+                document.getElementById('palaValue').textContent = pala;
+                document.getElementById('mlaringiaValue').textContent = mlaringia;
+                document.getElementById('cvdfValue').textContent = cvdf;
+                document.getElementById('edatValue').textContent = edat;
+            } else {
+                refSection.style.display = 'none';
+            }
+            
+            if (peso === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚖️</div>
+                        <div class="empty-state-text">Introdueix el pes del pacient per calcular les dosis</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const filtered = medicaments.filter(med => 
+                med.nom.toLowerCase().includes(searchTerm) ||
+                med.via.toLowerCase().includes(searchTerm) ||
+                med.consideracions.toLowerCase().includes(searchTerm)
+            );
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="no-results">❌ No s\'han trobat medicaments amb aquesta cerca</div>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(med => {
+                const dosisMl = med.calcMl(peso);
+                const dosisMg = med.calcMg(peso);
+                
+                return `
+                    <div class="med-card">
+                        <div class="med-header">
+                            <div class="med-name">${highlightText(med.nom, searchTerm)}</div>
+                            <div class="med-via">${med.via}</div>
+                        </div>
+                        <div class="dosage-grid">
+                            <div class="dosage-item">
+                                <div class="dosage-label">Dosis ML</div>
+                                <div class="dosage-value">${dosisMl.toFixed(2)}<span class="dosage-unit">ml</span></div>
+                            </div>
+                            <div class="dosage-item">
+                                <div class="dosage-label">Dosis MG</div>
+                                <div class="dosage-value">${dosisMg >= 1 ? dosisMg.toFixed(1) : (dosisMg * 1000).toFixed(0)}<span class="dosage-unit">${dosisMg >= 1 ? 'mg' : 'mcg'}</span></div>
+                            </div>
+                            <div class="dosage-item">
+                                <div class="dosage-label">MG/KG</div>
+                                <div class="dosage-value">${med.dosisMgKg}</div>
+                            </div>
+                        </div>
+                        <div class="considerations">${med.consideracions}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function highlightText(text, search) {
+            if (!search) return text;
+            const regex = new RegExp(`(${search})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        document.getElementById('pesoInput').addEventListener('input', calcularDosis);
+        document.getElementById('searchInput').addEventListener('input', calcularDosis);
+
+        // Mostrar estat inicial
+        calcularDosis();
+    </script>
+</body>
+</html>
